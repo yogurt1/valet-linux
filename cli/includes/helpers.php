@@ -22,7 +22,7 @@ if (! defined('VALET_STATIC_PREFIX')) {
     define('VALET_STATIC_PREFIX', '41c270e4-5535-4daa-b23e-c269744c2f45');
 }
 
-define('VALET_LOOPBACK', '127.0.0.1');
+define('VALET_LOOPBACK', '127.0.0.60');
 define('VALET_SERVER_PATH', realpath(__DIR__.'/../../server.php'));
 
 define('BREW_PREFIX', (new CommandLine())->runAsUser('printf $(brew --prefix)'));
@@ -180,14 +180,24 @@ function starts_with(string $haystack, array|string $needles): bool
     return false;
 }
 
-/**
- * Get the user.
- */
-function user(): string
-{
-    if (! isset($_SERVER['SUDO_USER'])) {
-        return $_SERVER['USER'];
-    }
+function is_linux(): boolean {
+    return PHP_OS === 'Linux';
+}
 
-    return $_SERVER['SUDO_USER'];
+/**
+ * get uid and gid pair
+ * @return array{uid: string, gid: string}
+ */
+function uid_and_gid(): array
+{
+   $username = isset($_SERVER['SUDO_USER']) ? $_SERVER['SUDO_USER'] : $_SERVER['USER'];
+   $uid = is_linux() ? exec('id -u ' . $username) : $username;
+   $gid = is_linux() ? exec('id -g ' . $username) : 'staff';
+
+   return ['uid' => $uid, 'gid' => $gid];
+}
+
+function has_installed_nginx_outside_of_homebrew(): bool
+{
+    
 }

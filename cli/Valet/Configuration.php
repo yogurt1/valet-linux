@@ -89,7 +89,7 @@ class Configuration
     public function writeBaseConfiguration(): void
     {
         if (! $this->files->exists($this->path())) {
-            $this->write(['tld' => 'test', 'loopback' => VALET_LOOPBACK, 'paths' => []]);
+            $this->write(['tld' => 'localhost', 'loopback' => VALET_LOOPBACK, 'paths' => []]);
         }
     }
 

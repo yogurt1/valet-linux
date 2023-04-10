@@ -664,8 +664,8 @@ class Site
             $siteConf = $this->replaceSockFile($siteConf, $phpVersion);
         } else {
             $siteConf = str_replace(
-                ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_STATIC_PREFIX', 'VALET_SITE', 'VALET_PHP_FPM_SOCKET', 'VALET_ISOLATED_PHP_VERSION'],
-                [VALET_HOME_PATH, VALET_SERVER_PATH, VALET_STATIC_PREFIX, $valetSite, PhpFpm::fpmSockName($phpVersion), $phpVersion],
+                ['VALET_HOME_PATH', VALET_LOOPBACK, 'VALET_SERVER_PATH', 'VALET_STATIC_PREFIX', 'VALET_SITE', 'VALET_PHP_FPM_SOCKET', 'VALET_ISOLATED_PHP_VERSION'],
+                [VALET_HOME_PATH, $this->valetLoopback(), VALET_SERVER_PATH, VALET_STATIC_PREFIX, $valetSite, PhpFpm::fpmSockName($phpVersion), $phpVersion],
                 $this->replaceLoopback($this->files->getStub('site.valet.conf'))
             );
         }
@@ -846,6 +846,10 @@ class Site
      */
     public function removeLoopbackAlias(string $loopback): void
     {
+        if (is_linux()) {
+            return;
+        }
+
         $this->cli->run(sprintf(
             'sudo ifconfig lo0 -alias %s', $loopback
         ));
@@ -858,6 +862,10 @@ class Site
      */
     public function addLoopbackAlias(string $loopback): void
     {
+        if (is_linux()) {
+            return;
+        }
+
         $this->cli->run(sprintf(
             'sudo ifconfig lo0 alias %s', $loopback
         ));
@@ -870,6 +878,10 @@ class Site
      */
     public function updateLoopbackPlist(string $loopback): void
     {
+        if (is_linux()) {
+            return;
+        }
+
         $this->removeLoopbackPlist();
 
         if ($loopback !== VALET_LOOPBACK) {
@@ -903,6 +915,10 @@ class Site
      */
     public function uninstallLoopback(): void
     {
+        if (is_linux()) {
+            return;
+        }
+
         if (($loopback = $this->valetLoopback()) !== VALET_LOOPBACK) {
             $this->removeLoopbackAlias($loopback);
         }

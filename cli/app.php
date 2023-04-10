@@ -588,7 +588,10 @@ if (is_dir(VALET_HOME_PATH)) {
             return info('Sudoers entries have been removed for Brew and Valet.');
         }
 
-        Brew::createSudoersEntry();
+        if (!is_linux()) {
+            Brew::createSudoersEntry();
+        }
+
         Valet::createSudoersEntry();
 
         info('Sudoers entries have been added for Brew and Valet.');

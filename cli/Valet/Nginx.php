@@ -35,11 +35,15 @@ class Nginx
     {
         info('Installing nginx configuration...');
 
+        $uidgid = uid_and_gid();
+        $uid = $uidgid['uid'];
+        $gid = $uidgid['gid'];
+
         $contents = $this->files->getStub('nginx.conf');
 
         $this->files->putAsUser(
             static::NGINX_CONF,
-            str_replace(['VALET_USER', 'VALET_HOME_PATH'], [user(), VALET_HOME_PATH], $contents)
+            str_replace(['VALET_USER', 'VALET_GROUP', 'VALET_HOME_PATH'], [$uid, $gid, VALET_HOME_PATH], $contents)
         );
     }
 

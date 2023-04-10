@@ -60,6 +60,10 @@ class PhpFpm
     {
         info("Updating PHP configuration for {$phpVersion}...");
 
+        $uidgid = uid_and_gid();
+        $uid = $uidgid['uid'];
+        $gid = $uidgid['gid'];
+
         $fpmConfigFile = $this->fpmConfigPath($phpVersion);
 
         $this->files->ensureDirExists(dirname($fpmConfigFile), user());
@@ -72,8 +76,8 @@ class PhpFpm
 
         // Create FPM Config File from stub
         $contents = str_replace(
-            ['VALET_USER', 'VALET_HOME_PATH', 'valet.sock'],
-            [user(), VALET_HOME_PATH, self::fpmSockName($phpVersion)],
+            ['VALET_USER', 'VALET_GROUP', 'VALET_HOME_PATH', 'valet.sock'],
+            [$uid, $gid, VALET_HOME_PATH, self::fpmSockName($phpVersion)],
             $this->files->getStub('etc-phpfpm-valet.conf')
         );
         $this->files->put($fpmConfigFile, $contents);
@@ -86,10 +90,9 @@ class PhpFpm
             $destDir.'/php-memory-limits.ini',
             $this->files->getStub('php-memory-limits.ini')
         );
-
         $contents = str_replace(
-            ['VALET_USER', 'VALET_HOME_PATH'],
-            [user(), VALET_HOME_PATH],
+            ['VALET_USER', 'VALET_GROUP', 'VALET_HOME_PATH'],
+            [$uid, $gid, VALET_HOME_PATH],
             $this->files->getStub('etc-phpfpm-error_log.ini')
         );
         $this->files->putAsUser($destDir.'/error_log.ini', $contents);
